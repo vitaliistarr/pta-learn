@@ -551,17 +551,16 @@ class PatternRecognition():
         name: str
             Name of the file, without the format extension.
         """
-        writer = pd.ExcelWriter(f'{name}.xlsx', engine='openpyxl')
-        if grouped_by_regime:
-            for i, r in enumerate(self.regime_names):
-                regime = pd.DataFrame()
-                for result in self.output:
-                    detected_regime = result[result['Regime'] == i]
-                    regime = pd.concat([regime, detected_regime], axis=0)
-                regime.to_excel(writer, sheet_name=f'{r}')
-        else:
-            for i,result in enumerate(self.output):
-                result.to_excel(writer, sheet_name=f'Transient_{i+1}')
-            if self.pattern_recognized:
-                self.stable_pattern_intervals.to_excel(writer, sheet_name='Stable pattern interval')
-        writer.close()
+        with pd.ExcelWriter(f'{name}.xlsx', engine='openpyxl') as writer:
+            if grouped_by_regime:
+                for i, r in enumerate(self.regime_names):
+                    regime = pd.DataFrame()
+                    for result in self.output:
+                        detected_regime = result[result['Regime'] == i]
+                        regime = pd.concat([regime, detected_regime], axis=0)
+                    regime.to_excel(writer, sheet_name=f'{r}')
+            else:
+                for i,result in enumerate(self.output):
+                    result.to_excel(writer, sheet_name=f'Transient_{i+1}')
+                if self.pattern_recognized:
+                    self.stable_pattern_intervals.to_excel(writer, sheet_name='Stable pattern interval')

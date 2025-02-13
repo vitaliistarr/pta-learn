@@ -1348,14 +1348,13 @@ class PTAClassifier(Logtime_window):
             Name of the file, without format extension.
         """
         if self.output_compiled == True:
-            writer = pd.ExcelWriter(f'{name}.xlsx', engine='openpyxl')
-            if grouped_by_regime:
-                for i, r in enumerate(self.names):
-                    detected_regime = self.output_data[self.output_data['Regime'] == i]
-                    detected_regime.to_excel(writer, sheet_name=f'{r}')
-            else:
-                self.output_data.to_excel(writer)
-            writer.close()
+            with pd.ExcelWriter(f'{name}.xlsx', engine='openpyxl') as writer:
+                if grouped_by_regime:
+                    for i, r in enumerate(self.names):
+                        detected_regime = self.output_data[self.output_data['Regime'] == i]
+                        detected_regime.to_excel(writer, sheet_name=f'{r}')
+                else:
+                    self.output_data.to_excel(writer)
         else:
             raise AttributeError('Output data is not compiled. Call predict() or predict_optimize() first.')
 
