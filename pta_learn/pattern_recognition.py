@@ -564,4 +564,4 @@ class PatternRecognition():
                 result.to_excel(writer, sheet_name=f'Transient_{i+1}')
             if self.pattern_recognized:
                 self.stable_pattern_intervals.to_excel(writer, sheet_name='Stable pattern interval')
-        writer.save()
+        writer.close()

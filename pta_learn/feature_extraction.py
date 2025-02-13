@@ -1355,7 +1355,7 @@ class PTAClassifier(Logtime_window):
                     detected_regime.to_excel(writer, sheet_name=f'{r}')
             else:
                 self.output_data.to_excel(writer)
-            writer.save()
+            writer.close()
         else:
             raise AttributeError('Output data is not compiled. Call predict() or predict_optimize() first.')
 
