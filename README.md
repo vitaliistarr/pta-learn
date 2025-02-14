@@ -1,6 +1,12 @@
 # pta-learn
 
-A Python library for automated feature extraction and pattern recognition for Pressure Transient Analysis (PTA) workflows. The library provides tools to detect flow regime features and recognize stable patterns in time-lapse pressure transient responses. The library is based on the methodology described in the peer-reviewed paper: [Feature extraction and pattern recognition in time-lapse pressure transient responses](https://doi.org/10.1016/j.geoen.2024.213160)
+A Python library for automated feature extraction and pattern recognition for Pressure Transient Analysis (PTA) workflows. The library provides tools to detect flow regime features and recognize stable patterns in time-lapse pressure transient responses. The library is based on the methodology described in the peer-reviewed paper: [Feature extraction and pattern recognition in time-lapse pressure transient responses](https://doi.org/10.1016/j.geoen.2024.213160).
+
+Usage examples provided in:
+
+<a href="https://colab.research.google.com/drive/1ioJiNM5xpNyP1NoVpBrQp1qr1u94Knlz?usp=sharing"> PTA flow regime feature extraction example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
+<a href="https://colab.research.google.com/drive/1_ASQ8nmRewhCZmNSMPcs3WBmBFFGiSs6?usp=sharing"> Time-lapse PTA pattern recognition example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a>
+
 
 ## Installation
 
@@ -57,7 +63,7 @@ clf.to_csv("results.csv")
 
 ### Pattern Recognition
 - Multi-transient analysis
-- Stable pattern detection
+- Stable pattern recognition
 - Confidence estimation
 - Result visualization
 
