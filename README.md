@@ -57,8 +57,8 @@ output, distance, optimization_result = clf.predict_optimize()
 fig = clf.plot(industry_chart=True)
 
 # Export results
-clf.to_excel("results.xlsx")  # or
-clf.to_csv("results.csv")
+clf.to_excel("results")  # or
+clf.to_csv("results")
 ```
 
 ### Pattern Recognition
@@ -95,7 +95,7 @@ pr.detect_features()
 fig = pr.get_stable_pattern()
 
 # Export results
-pr.to_excel("pattern_results.xlsx")
+pr.to_excel("pattern_results")
 ```
 
 ## Citation
