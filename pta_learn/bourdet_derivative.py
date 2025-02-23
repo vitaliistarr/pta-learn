@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from bisect import bisect_right
-from superposition_calculation import *
+from .superposition_calculation import *
 
 
 # function to calculate bourdet derivative

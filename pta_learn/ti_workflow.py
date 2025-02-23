@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from tpmr import *
-from lmir import *
+from .tpmr import *
+from .lmir import *
 
 def create_injection_periods(shutin_breakpoints, df_bhp_1):
     """

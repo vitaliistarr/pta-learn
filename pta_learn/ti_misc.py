@@ -30,8 +30,11 @@ def plot_whole(df_bhp, df_rate):
     ax2.set_ylabel('Rate [STM3/D]')
     ax2.set_xlabel('Time [hr]')
 
+    # Adjust global font settings (optional, move outside if used globally)
+    plt.rcParams.update({'font.size': 35, 'font.family': 'Calibri'})
+
     # Adjust subplot spacing
-    plt.subplots_adjust(hspace=0.3)
+    plt.subplots_adjust(hspace=0.4)
 
     # Show plot
     plt.show()
