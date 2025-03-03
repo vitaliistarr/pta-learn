@@ -1,6 +1,3 @@
-import numpy as np
-import pandas as pd
-
 from .tpmr import *
 from .lmir import *
 
