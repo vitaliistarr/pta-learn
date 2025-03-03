@@ -109,7 +109,7 @@ pr.to_excel("pattern_results")
 - Result visualization
 
 The `TPMR` function enables shut-in transient identication in time series sensors.
-eg downhole pressure gauges. Please refer to `TPMR` and `plot_target` functions input/output description in the pta_learn module.
+eg downhole pressure gauges. Please refer to `TPMR` and `plot_target` functions input/output description in the `pta_learn` module.
 
 ```python
 from pta_learn import TPMR
@@ -146,7 +146,7 @@ plot_target(df_bhp, df_rate ,shutin_transient_interval, TI_empty)
 - Flowing Transient Identification
 - Result visualization
 
-The `LMIR` function enables flowing transient identification in time series sensors, eg Step Rate Tests in downhole pressure gauges. Please refer to `LMIR` and `plot_target` functions input/output description in the pta_learn module. 
+The `LMIR` function enables flowing transient identification in time series sensors, eg Step Rate Tests in downhole pressure gauges. Please refer to `LMIR` and `plot_target` functions input/output description in the `pta_learn` module. 
 
 ```python
 from pta_learn import LMIR
@@ -185,7 +185,7 @@ plot_target(df_bhp, df_rate,TI_empty,flowing_period)
 - Identify both shut-in transients and flowing transient
 - Result visualization
 
-The Integrated transient identification workflow `ti_worflow` function enables shut-in and flowing transients identication in time series sensors, eg downhole pressure gauges. Please refer to `ti_workflow` and `plot_target` functions input/output description in the pta_learn module.
+The Integrated transient identification workflow `ti_worflow` function enables shut-in and flowing transients identication in time series sensors, eg downhole pressure gauges. Please refer to `ti_workflow` and `plot_target` functions input/output description in the `pta_learn` module.
 
 ```python
 from pta_learn import ti_workflow
@@ -230,7 +230,7 @@ plot_target(df_bhp, df_rate,shutin,flowing)
 - Normalization calculation in PTA
 - Result visualization
 
-The `Loglog family ploting Workflow` function enables plotting loglog family of Bourdet derivatives from identified transients. Please refer to `cal_loglog_shut`, `cal_loglog_inj` and `plot_TI_family` functions input/output description in the pta_learn module.
+The `Loglog family ploting Workflow` function enables plotting loglog family of Bourdet derivatives from identified transients. Please refer to `cal_loglog_shut`, `cal_loglog_inj` and `plot_TI_family` functions input/output description in the `pta_learn` module.
 
 ```python
 from pta_learn import ti_workflow
