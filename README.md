@@ -2,8 +2,8 @@
 
 A Python library for automated Pressure Transient Analysis (PTA) workflows. The library provides tools to identify shut-in and flowing transients, detect PTA flow regime features and recognize stable patterns in time-lapse pressure transient responses. 
 Feature extraction and pattern recognition modules are based on the methodology described in the peer-reviewed paper: [Feature extraction and pattern recognition in time-lapse pressure transient responses](https://doi.org/10.1016/j.geoen.2024.213160).
-Shut-in pressure transient identification module is implemented using the methodology detailed in the conference paper [TPMR - A Novel Method for Automated Identification of Well Pressure Transients](https://doi.org/10.3997/2214-4609.202310910). 
-Similarly, the flowing transient identification module employs the approach described in the conference paper [LMIR - A New Method for Automated Identification of Multi-Rate Pressure Transients](https://doi.org/10.3997/2214-4609.202410313).
+Shut-in pressure transient identification module is implemented using the methodology detailed in the conference paper: [TPMR - A Novel Method for Automated Identification of Well Pressure Transients](https://doi.org/10.3997/2214-4609.202310910). 
+Similarly, the flowing transient identification module employs the approach described in the conference paper: [LMIR - A New Method for Automated Identification of Multi-Rate Pressure Transients](https://doi.org/10.3997/2214-4609.202410313).
 
 Usage examples provided in:
 
