@@ -1,23 +1,17 @@
 # pta-learn
 
-A Python library for automated feature extraction and pattern recognition for Pressure Transient Analysis (PTA) workflows. The library provides tools to detect flow regime features and recognize stable patterns in time-lapse pressure transient responses. The library is based on the methodology described in the peer-reviewed paper: [Feature extraction and pattern recognition in time-lapse pressure transient responses](https://doi.org/10.1016/j.geoen.2024.213160).
-
-Maxwell verison, please update based on your comments.****
-A Python library for automated transient identification, feature extraction and pattern recognition for Pressure Transient Analysis (PTA) workflows. 
-The library provides tools to identify shut-in and flowing transients, plot loglog family and detect flow regime features and recognize stable patterns in time-lapse pressure transient responses. 
-Feature extraction and pattern recognition methods are based on the methodology described in the peer-reviewed paper: [Feature extraction and pattern recognition in time-lapse pressure transient responses](https://doi.org/10.1016/j.geoen.2024.213160).
-Shut-in transient identification is based on this conference paper [TPMR - A Novel Method for Automated Identification of Well Pressure Transients](https://doi.org/10.3997/2214-4609.202310910). 
-Flowing transient identification is based on this conference paper [LMIR - A New Method for Automated Identification of Multi-Rate Pressure Transients](https://doi.org/10.3997/2214-4609.202410313).
+A Python library for automated Pressure Transient Analysis (PTA) workflows. The library provides tools to identify shut-in and flowing transients, detect PTA flow regime features and recognize stable patterns in time-lapse pressure transient responses. 
+Feature extraction and pattern recognition modules are based on the methodology described in the peer-reviewed paper: [Feature extraction and pattern recognition in time-lapse pressure transient responses](https://doi.org/10.1016/j.geoen.2024.213160).
+Shut-in pressure transient identification module is implemented using the methodology detailed in the conference paper [TPMR - A Novel Method for Automated Identification of Well Pressure Transients](https://doi.org/10.3997/2214-4609.202310910). 
+Similarly, the flowing transient identification module employs the approach described in the conference paper [LMIR - A New Method for Automated Identification of Multi-Rate Pressure Transients](https://doi.org/10.3997/2214-4609.202410313).
 
 Usage examples provided in:
 
 <a href="https://colab.research.google.com/drive/1ioJiNM5xpNyP1NoVpBrQp1qr1u94Knlz?usp=sharing"> PTA flow regime feature extraction example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
-<a href="https://colab.research.google.com/drive/1_ASQ8nmRewhCZmNSMPcs3WBmBFFGiSs6?usp=sharing"> Time-lapse PTA pattern recognition example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a>
-
-Transient Identification Methods
-<a href="https://colab.research.google.com/drive/1z9B7RzGkWfQEpRWUygTIJvKtjnSeexE4?usp=sharing"> Shutin Transient Identification by TPMR method example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a>
-<a href="https://colab.research.google.com/drive/1WFA9hKydEoxk1Z60_NFCQQJwhT9QwMEw?usp=sharing"> Flowing Transient Identification by LMIR method <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a>
-<a href="https://colab.research.google.com/drive/1SsXoKafnEJWafGUk8FHa_d7oF6ODljHI?usp=sharing"> Integrated Transient Identification Workflow example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a>
+<a href="https://colab.research.google.com/drive/1_ASQ8nmRewhCZmNSMPcs3WBmBFFGiSs6?usp=sharing"> Time-lapse PTA pattern recognition example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
+<a href="https://colab.research.google.com/drive/1z9B7RzGkWfQEpRWUygTIJvKtjnSeexE4?usp=sharing"> Shutin Transient Identification by TPMR method example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
+<a href="https://colab.research.google.com/drive/1WFA9hKydEoxk1Z60_NFCQQJwhT9QwMEw?usp=sharing"> Flowing Transient Identification by LMIR method <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
+<a href="https://colab.research.google.com/drive/1SsXoKafnEJWafGUk8FHa_d7oF6ODljHI?usp=sharing"> Integrated Transient Identification Workflow example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
 <a href="https://colab.research.google.com/drive/1lVzSIklC-51Nzqehp4lOFctKCjhEbX3Z?usp=sharing"> Loglog family ploting Workflow example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a>
 
 ## Installation
@@ -114,13 +108,13 @@ pr.to_excel("pattern_results")
 - Shutin Transient Identification
 - Result visualization
 
-The `TPMR method` function enables shut-in transient identication in time series sensors.
-eg downhole pressure gauges:
+The `TPMR` function enables shut-in transient identication in time series sensors.
+eg downhole pressure gauges. Please refer to `TPMR` and `plot_target` functions input/output description in the pta_learn module.
 
 ```python
-from pta_learn import tpmr,ti_misc
+from pta_learn import TPMR
+from pta_learn.ti_misc import plot_target
 import pandas as pd
-import numpy as np
 
 # Prepare pressure and rate dataframes, pressure data is the one used by the method, and rate data is to verify the result.
 pressure = pd.DataFrame({
@@ -152,12 +146,12 @@ plot_target(df_bhp, df_rate ,shutin_transient_interval, TI_empty)
 - Flowing Transient Identification
 - Result visualization
 
-The `LMIR method` function enables flowing transient identication in time series sensors, eg Step Rate Tests in downhole pressure gauges:
+The `LMIR` function enables flowing transient identification in time series sensors, eg Step Rate Tests in downhole pressure gauges. Please refer to `LMIR` and `plot_target` functions input/output description in the pta_learn module. 
 
 ```python
-from pta_learn import lmir,ti_misc
+from pta_learn import LMIR
+from pta_learn.ti_misc import plot_target
 import pandas as pd
-import numpy as np
 
 # Prepare pressure and rate dataframes, pressure data is the one used by the method, and rate data is to verify the result.
 pressure = pd.DataFrame({
@@ -191,12 +185,12 @@ plot_target(df_bhp, df_rate,TI_empty,flowing_period)
 - Identify both shut-in transients and flowing transient
 - Result visualization
 
-The `Integrated transient identification workflow` function enables shut-in and flowing transients identication in time series sensors, eg downhole pressure gauges:
+The Integrated transient identification workflow `ti_worflow` function enables shut-in and flowing transients identication in time series sensors, eg downhole pressure gauges. Please refer to `ti_workflow` and `plot_target` functions input/output description in the pta_learn module.
 
 ```python
-from pta_learn import tpmr,lmir,ti_misc,ti_workflow
+from pta_learn import ti_workflow
+from pta_learn.ti_misc import plot_target
 import pandas as pd
-import numpy as np
 
 # Prepare pressure and rate dataframes, pressure data is the one used by the method, and rate data is to verify the result.
 pressure = pd.DataFrame({
@@ -236,12 +230,14 @@ plot_target(df_bhp, df_rate,shutin,flowing)
 - Normalization calculation in PTA
 - Result visualization
 
-The `Loglog family ploting Workflow` function enables plotting loglog family of bourdet derivatives from identified transients:
+The `Loglog family ploting Workflow` function enables plotting loglog family of Bourdet derivatives from identified transients. Please refer to `cal_loglog_shut`, `cal_loglog_inj` and `plot_TI_family` functions input/output description in the pta_learn module.
 
 ```python
-from pta_learn import tpmr,lmir,ti_misc,ti_workflow,superposition_calculation,bourdet_derivative,normalization
+from pta_learn import ti_workflow
+from pta_learn.bourdet_derivative import cal_loglog_shut, cal_loglog_inj
+from pta_learn.normalization import normal_calc
+from pta_learn.ti_misc import plot_TI_family
 import pandas as pd
-import numpy as np
 
 # Prepare pressure and rate dataframes, pressure data is the one used by the method, and rate data is to verify the result.
 pressure = pd.DataFrame({
