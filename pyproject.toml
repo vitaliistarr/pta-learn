@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pta-learn"
-version = "1.0.1"
+version = "1.0.2"
 description = "A Python library for automated Pressure Transient Analysis (PTA) workflows. It provides tools for PTA flow regime feature extraction, time-lapse pattern recognition, pressure transient identification, and Bourdet derivative calculation."
 readme = "README.md"
 authors = [
