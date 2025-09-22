@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pta-learn"
-version = "1.0.2"
+version = "1.0.3"
 description = "A Python library for automated Pressure Transient Analysis (PTA) workflows. It provides tools for PTA flow regime feature extraction, time-lapse pattern recognition, pressure transient identification, and Bourdet derivative calculation."
 readme = "README.md"
 authors = [
@@ -16,25 +16,22 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
 ]
 keywords = ["pressure-transient-analysis", "feature-extraction", "pattern-recognition", "well-testing", "transient-identification", "Bourdet-derivative", "loglog-plot"]
 dependencies = [
-    "numpy>=1.20.0",
-    "pandas>=1.3.0",
-    "scipy>=1.7.0",
-    "matplotlib>=3.4.0",
-    "scikit-learn>=0.24.0",
-    "scikit-optimize>=0.9.0",
-    "numba>=0.53.0",
-    "plotly>=5.0.0",
+    "numpy==2.1.3",
+    "pandas==2.2.3",
+    "scipy==1.15.0",
+    "matplotlib==3.10.1",
+    "scikit-learn==1.6.1",
+    "scikit-optimize==0.10.2",
+    "numba>=0.61.0",
+    "plotly>=5.24.1",
     "kneebow==1.0.1"
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 
 [project.urls]
 Homepage = "https://github.com/vitaliistarr/pta-learn"
