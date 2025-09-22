@@ -586,16 +586,6 @@ def ti_workflow(df_bhp, df_rate, p: float, interval_shutin: float, interval_inje
         shutin_filtered, flowing_filtered = validate_shutin_rate(shutin, w_rate, flowing_filtered)
         shutin_filtered, flowing_filtered = validate_flowing_rate(shutin_filtered, w_rate, flowing_filtered)
 
-        # Check if both shutin_filtered and flowing_filtered are not empty
-        if not shutin_filtered.empty and not flowing_filtered.empty:
-            # Compare the start/hr in the first row from flowing and shutin
-            if shutin_filtered['start/hr'].iloc[0] < flowing_filtered['start/hr'].iloc[0]:
-                # Drop the first row from shutin_filtered if start/hr is smaller
-                shutin_filtered = shutin_filtered.drop(shutin_filtered.index[0]).reset_index(drop=True)
-            else:
-                # Drop the first row from flowing_filtered otherwise
-                flowing_filtered = flowing_filtered.drop(flowing_filtered.index[0]).reset_index(drop=True)
-
 
     return shutin_filtered, flowing_filtered, shutin_bp_interval, TI_ft_filtered, all_breakpoints_filtered,w_rate, params
 
