@@ -262,50 +262,96 @@ def filter_breakpoints(filtered_transients, all_breakpoints,threshold = 2):
 
 def validate_shutin_rate(shutin, w_rate, flowing):
 
-    """
-    Validates shut-in periods by checking if the corresponding rate is zero and updates flowing periods accordingly.
+    if shutin is None or w_rate is None or flowing is None:
+        raise ValueError("Input DataFrames cannot be None")
+    if shutin.empty or w_rate.empty:
+        return shutin.copy(), flowing.copy()
 
-    Parameters:
-    - shutin (pd.DataFrame): DataFrame containing shut-in periods with a 'start/timestamp' column.
-    - w_rate (pd.DataFrame): DataFrame containing rate data with 'Start Timestamp' and 'Weighted Averaged Rate' columns.
-    - flowing (pd.DataFrame): DataFrame containing flowing periods.
+    # Check required columns exist
+    required_cols_shutin = ['start/timestamp']
+    required_cols_wrate = ['Start Timestamp', 'Weighted Averaged Rate']
+    for col in required_cols_shutin:
+        if col not in shutin.columns:
+            raise KeyError(f"Column '{col}' not found in shutin DataFrame")
 
-    Returns:
-    - shutin_filtered (pd.DataFrame): DataFrame containing valid shut-in periods (where the rate is zero).
-    - flowing_filtered (pd.DataFrame): DataFrame containing updated flowing periods, including reclassified periods.
-    """
+    for col in required_cols_wrate:
+        if col not in w_rate.columns:
+            raise KeyError(f"Column '{col}' not found in w_rate DataFrame")
 
-    # Convert 'start/timestamp' to numpy array
-    start_shutin = shutin['start/timestamp'].to_numpy()
+    try:
+        shutin_start_timestamp = shutin['start/timestamp'].to_numpy()
+        mask1 = w_rate['Start Timestamp'].isin(shutin_start_timestamp)
+        w_rate_shutin = w_rate[mask1].reset_index(drop=True)
 
-    # Find the rows in w_rate from 'Start Timestamp' that are in start_shutin
-    mask1 = w_rate['Start Timestamp'].isin(start_shutin)
+        if w_rate_shutin.empty:
+            return shutin.copy(), flowing.copy()
 
-    # Filter the rows
-    w_rate_filtered = w_rate[mask1].reset_index(drop=True)
+        # Fix the critical bug: use indices that match between DataFrames
+        mask2 = w_rate_shutin['Weighted Averaged Rate'] != 0
+        # Get the original indices from shutin that correspond to non-zero rates
+        matching_shutin_indices = shutin.index[shutin['start/timestamp'].isin(
+            w_rate_shutin.loc[mask2, 'Start Timestamp']
+        )]
 
-    # Pick the index from w_rate_filtered where the rate is not zero
-    mask2 = w_rate_filtered['Weighted Averaged Rate'] != 0
+        nonzero_rate_shutin = shutin.loc[matching_shutin_indices].copy()
+        nonzero_rate_shutin['status'] = 'flowing'
 
-    # Find the rows from shutin that are in the mask (where rate is not zero)
-    reduced_rate = shutin[mask2].reset_index(drop=True)
-
-    # Initialize flowing_filtered with the provided flowing data
-    flowing_filtered = flowing.copy()
-
-    # If there are any rows in reduced_rate, add them to flowing_filtered
-    if not reduced_rate.empty:
-        # Change the column 'status' to 'flowing'
-        reduced_rate['status'] = 'flowing'  
-        
-        # Concatenate reduced_rate to flowing_filtered, sort by 'start/timestamp'
-        flowing_filtered = pd.concat([flowing_filtered, reduced_rate], ignore_index=True)
+        # Filter shutin to exclude the non-zero rate entries
+        shutin_filtered = shutin.loc[~shutin.index.isin(matching_shutin_indices)].reset_index(drop=True)
+        flowing_filtered = pd.concat([flowing, nonzero_rate_shutin], ignore_index=True)
         flowing_filtered = flowing_filtered.sort_values(by='start/timestamp').reset_index(drop=True)
 
-    # Remove the rows from shutin that are in the mask
-    shutin_filtered = shutin[~mask2].reset_index(drop=True)
+        return shutin_filtered, flowing_filtered
 
-    return shutin_filtered, flowing_filtered
+    except Exception as e:
+        raise RuntimeError(f"Error processing data in validate_shutin_rate: {str(e)}")
+
+
+def validate_flowing_rate(shutin, w_rate, flowing):
+
+    if shutin is None or w_rate is None or flowing is None:
+        raise ValueError("Input DataFrames cannot be None")
+
+    if flowing.empty or w_rate.empty:
+        return shutin.copy(), flowing.copy()
+
+    # Check required columns exist
+    required_cols_flowing = ['start/timestamp']
+    required_cols_wrate = ['Start Timestamp', 'Weighted Averaged Rate']
+    for col in required_cols_flowing:
+        if col not in flowing.columns:
+            raise KeyError(f"Column '{col}' not found in flowing DataFrame")
+
+    for col in required_cols_wrate:
+        if col not in w_rate.columns:
+            raise KeyError(f"Column '{col}' not found in w_rate DataFrame")
+
+    try:
+        flowing_start_timestamp = flowing['start/timestamp'].to_numpy()
+        mask1 = w_rate['Start Timestamp'].isin(flowing_start_timestamp)
+        w_rate_flowing = w_rate[mask1].reset_index(drop=True)
+
+        if w_rate_flowing.empty:
+            return shutin.copy(), flowing.copy()
+
+        # Fix the critical bug: use indices that match between DataFrames
+        mask2 = w_rate_flowing['Weighted Averaged Rate'] == 0
+        # Get the original indices from flowing that correspond to zero rates
+        matching_flowing_indices = flowing.index[flowing['start/timestamp'].isin(
+            w_rate_flowing.loc[mask2, 'Start Timestamp']
+        )]
+
+        zero_rate_flowing = flowing.loc[matching_flowing_indices].copy()
+        zero_rate_flowing['status'] = 'shutin'
+
+        flowing_filtered = flowing.loc[~flowing.index.isin(matching_flowing_indices)].reset_index(drop=True)
+        shutin_filtered = pd.concat([shutin, zero_rate_flowing], ignore_index=True)
+        shutin_filtered = shutin_filtered.sort_values(by='start/timestamp').reset_index(drop=True)
+
+        return shutin_filtered, flowing_filtered
+
+    except Exception as e:
+        raise RuntimeError(f"Error processing data in validate_flowing_rate: {str(e)}")
 
 
 def calculate_weighted_averaged_rate(rate_data, breakpoints, shutin_threshold=None, zero_q_frac=0.1):
@@ -537,17 +583,8 @@ def ti_workflow(df_bhp, df_rate, p: float, interval_shutin: float, interval_inje
         w_rate = calculate_weighted_averaged_rate(rate_data=df_rate, breakpoints=all_breakpoints_filtered, shutin_threshold=shutin_threshold)
         
         # assign the shutin that calculated rate is not 0 as reduced_rate
-        shutin_filtered, flowing_filtered = validate_shutin_rate(shutin, w_rate,flowing_filtered)
-
-        # Check if both shutin_filtered and flowing_filtered are not empty
-        if not shutin_filtered.empty and not flowing_filtered.empty:
-            # Compare the start/hr in the first row from flowing and shutin
-            if shutin_filtered['start/hr'].iloc[0] < flowing_filtered['start/hr'].iloc[0]:
-                # Drop the first row from shutin_filtered if start/hr is smaller
-                shutin_filtered = shutin_filtered.drop(shutin_filtered.index[0]).reset_index(drop=True)
-            else:
-                # Drop the first row from flowing_filtered otherwise
-                flowing_filtered = flowing_filtered.drop(flowing_filtered.index[0]).reset_index(drop=True)
+        shutin_filtered, flowing_filtered = validate_shutin_rate(shutin, w_rate, flowing_filtered)
+        shutin_filtered, flowing_filtered = validate_flowing_rate(shutin_filtered, w_rate, flowing_filtered)
 
 
     return shutin_filtered, flowing_filtered, shutin_bp_interval, TI_ft_filtered, all_breakpoints_filtered,w_rate, params
