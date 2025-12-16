@@ -3,3 +3,4 @@ from .pattern_recognition import PatternRecognition
 from .ti_workflow import ti_workflow
 from .tpmr import TPMR
 from .lmir import LMIR
+from .rare import calculate_rare, calculate_rare_inputs
