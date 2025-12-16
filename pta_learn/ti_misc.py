@@ -19,16 +19,17 @@ def plot_whole(df_bhp, df_rate):
 
     # Plot BHP data
     ax1.scatter(df_bhp['Time'], df_bhp['Pressure'], s=5, c='r', label='Pressure')
-    ax1.set_ylabel('Pressure [bar]')
-    ax1.set_xlabel('Time [hr]')
+    ax1.set_ylabel('Pressure [bar]', fontsize=35)  # Set font size for y-axis label
+    ax1.set_xlabel('Time [hr]', fontsize=35)       # Set font size for x-axis label
+    ax1.tick_params(axis='both', labelsize=30)     # Set font size for tick labels
+    ax1.legend(fontsize=30)                        # Set font size for legend
 
     # Plot Rate data
     ax2.scatter(df_rate['Time'], df_rate['Rate'], s=5, c='b', label='Rate')
-    ax2.set_ylabel('Rate [STM3/D]')
-    ax2.set_xlabel('Time [hr]')
-
-    # Adjust global font settings (optional, move outside if used globally)
-    plt.rcParams.update({'font.size': 35, 'font.family': 'Calibri'})
+    ax2.set_ylabel('Rate [STM3/D]', fontsize=35)   # Set font size for y-axis label
+    ax2.set_xlabel('Time [hr]', fontsize=35)        # Set font size for x-axis label
+    ax2.tick_params(axis='both', labelsize=30)     # Set font size for tick labels
+    ax2.legend(fontsize=30)                        # Set font size for legend
 
     # Adjust subplot spacing
     plt.subplots_adjust(hspace=0.4)
@@ -51,8 +52,8 @@ def plot_target(df_bhp, df_rate, sel_shutin, sel_flowing):
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(24, 12))
 
     # Plot BHP and Rate data
-    ax1.scatter(df_bhp['Time'], df_bhp['Pressure'], s=1, c='r', label='Pressure')
-    ax2.scatter(df_rate['Time'], df_rate['Rate'], s=1, c='b', label='Rate')
+    ax1.scatter(df_bhp['Time'], df_bhp['Pressure'], s=5, c='r', label='Pressure')
+    ax2.scatter(df_rate['Time'], df_rate['Rate'], s=5, c='b', label='Rate')
 
     # Plot shut-in and flowing intervals
     for ax, intervals, color, label in [(ax1, sel_shutin, 'green', 'Shut-in'), 
@@ -63,17 +64,18 @@ def plot_target(df_bhp, df_rate, sel_shutin, sel_flowing):
             ax.axvspan(start, end, alpha=0.2, color=color, label=label if i == 0 else "")
 
     # Add legends
-    ax1.legend(loc='lower right')
-    ax2.legend(loc='lower right')
+    ax1.legend(loc='lower right', fontsize=30)  # Set font size for legend
+    ax2.legend(loc='lower right', fontsize=30)  # Set font size for legend
 
     # Set axis labels
-    ax1.set_ylabel('Pressure [bar]')
-    ax1.set_xlabel('Time [hr]')
-    ax2.set_ylabel('Rate [STM3/D]')
-    ax2.set_xlabel('Time [hr]')
+    ax1.set_ylabel('Pressure [bar]', fontsize=35)  # Set font size for y-axis label
+    ax1.set_xlabel('Time [hr]', fontsize=35)       # Set font size for x-axis label
+    ax2.set_ylabel('Rate [STM3/D]', fontsize=35)   # Set font size for y-axis label
+    ax2.set_xlabel('Time [hr]', fontsize=35)       # Set font size for x-axis label
 
-    # Adjust global font settings (optional, move outside if used globally)
-    plt.rcParams.update({'font.size': 35, 'font.family': 'Calibri'})
+    # Set font size for tick labels
+    ax1.tick_params(axis='both', labelsize=30)
+    ax2.tick_params(axis='both', labelsize=30)
 
     # Adjust space between subplots
     plt.subplots_adjust(hspace=0.4)
@@ -84,7 +86,7 @@ def plot_target(df_bhp, df_rate, sel_shutin, sel_flowing):
 
 def plot_TI_family(*logs):
     # Create the figure and axes objects
-    fig, ax = plt.subplots(figsize=(24, 12))
+    fig, ax = plt.subplots(figsize=(12, 8))
     dot_size = 40
 
     # Use a colormap
@@ -117,7 +119,7 @@ def plot_TI_family(*logs):
     ax.grid(True, which='both', ls='-', color='0.65')
 
     # Put the legend outside the plot
-    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0., markerscale=5, fontsize=16)
+    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0., markerscale=2, fontsize=12)
 
     # Adjust layout to not cut off labels
     plt.subplots_adjust(left=0.05, right=0.85, top=0.95, bottom=0.05)
