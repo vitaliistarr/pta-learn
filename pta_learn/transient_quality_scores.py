@@ -41,38 +41,42 @@ def extract_pressure_features(start_ts, end_ts, pressure, window=24):
     """
     pressure_transient = pressure[(pressure.index >= start_ts) & (pressure.index < end_ts)]
 
-    if pressure_transient.isna().any():
-        print(f'pressure_transient has {pressure_transient.isna().value_counts()}')
+    # Handle insufficient data
+    if len(pressure_transient) < 2:
+        return {
+            'monotonicity_ratio': np.nan,
+            'local_median_deviation': np.nan,
+            'trend_efficiency': np.nan,
+        }
+
+    pressure_transient_arr = pressure_transient.values.ravel()
 
     # Monotonicity ratio
-    diffs = np.diff(pressure_transient)
+    diffs = np.diff(pressure_transient_arr)
     sign_changes = np.sum(np.diff(np.sign(diffs)) != 0)
     max_changes = max(len(diffs) - 1, 1)
-    monotonicity_ratio = 1 - (sign_changes / max_changes)
+    monotonicity_ratio = float(1 - (sign_changes / max_changes))
 
     # Local Median Deviation
-    window_size = min(window, len(pressure_transient))
-    rolling_pressure_median = pressure_transient.rolling(window=window_size, center=True).median()
+    window_size = min(window, len(pressure_transient_arr))
+    rolling_pressure_median = pressure_transient.rolling(window=window_size, center=True, min_periods=1).median()
     residuals = np.abs(pressure_transient - rolling_pressure_median)
-    spread = iqr(pressure_transient) if iqr(pressure_transient) > 0 else np.std(pressure_transient) + 1e-9
-    # Factor 2.0 adjusts sensitivity (higher = stricter)
-    local_median_deviation = 1 - np.tanh(np.mean(residuals) / spread * 2.0)
+    residuals_mean = float(residuals.mean())
+    spread = iqr(pressure_transient_arr)
+    if spread == 0:
+        spread = float(np.std(pressure_transient_arr)) + 1e-9
+    local_median_deviation = float(1 - np.tanh(residuals_mean / spread * 2.0))
 
-    # Smoothness (Trend Efficiency)
-    net_change = np.abs(pressure_transient[-1] - pressure_transient[0])
-    total_path_travelled = np.sum(np.abs(diffs))
-    if total_path_travelled == 0:
-        trend_efficiency = 1.0  # Perfectly stable
-    else:
-        trend_efficiency = net_change / total_path_travelled
+    # Trend Efficiency
+    net_change = float(np.abs(pressure_transient_arr[-1] - pressure_transient_arr[0]))
+    total_path_travelled = float(np.sum(np.abs(diffs)))
+    trend_efficiency = 1.0 if total_path_travelled == 0 else float(net_change / total_path_travelled)
 
-    features = {
+    return {
         'monotonicity_ratio': monotonicity_ratio,
         'local_median_deviation': local_median_deviation,
         'trend_efficiency': trend_efficiency,
     }
-
-    return features
 
 
 def extract_rate_features(start_ts, end_ts, duration_hr, rate):
@@ -114,9 +118,9 @@ def extract_rate_features(start_ts, end_ts, duration_hr, rate):
     rate_td_time = rate[(rate.index >= td_time) & (rate.index < start_ts)]
 
     # Variability statistics
-    rate_std = rate_transient.std()
-    rate_td_std = rate_td_time.std()
-    rate_iqr = rate_transient.quantile(0.9) - rate_transient.quantile(0.1)
+    rate_std = float(rate_transient.std())
+    rate_td_std = float(rate_td_time.std())
+    rate_iqr = float(rate_transient.quantile(0.9)) - float(rate_transient.quantile(0.1))
 
     return {
         'rate_std': rate_std,
@@ -169,8 +173,8 @@ def extract_stat_test_results(start_ts, end_ts, duration_hr, rate, window_size_h
     rate_after = rate[(rate.index >= start_ts) & (rate.index < window_end_ts)]
     if len(rate_before) > 0 and len(rate_after) > 0:
         # SNR
-        mu_before, mu_after = np.mean(rate_before), np.mean(rate_after)
-        std_before, std_after = np.std(rate_before), np.std(rate_after)
+        mu_before, mu_after = float(rate_before.mean()), float(rate_after.mean())
+        std_before, std_after = float(rate_before.std()), float(rate_after.std())
         snr = abs(mu_after - mu_before) / max(std_before, std_after, 1e-6)
         # Stat test
         _, p_u = mannwhitneyu(rate_before, rate_after, alternative='two-sided')
@@ -191,10 +195,10 @@ def extract_stat_test_results(start_ts, end_ts, duration_hr, rate, window_size_h
     # Get stats if data is available
     if len(rate_before_full) > 2 and len(rate_after_full) > 2:
         # SNR
-        mu_before_full = rate_before_full.mean()
-        mu_after_full = rate_after_full.mean()
-        std_before_full = rate_before_full.std()
-        std_after_full = rate_after_full.std()
+        mu_before_full = float(rate_before_full.mean())
+        mu_after_full = float(rate_after_full.mean())
+        std_before_full = float(rate_before_full.std())
+        std_after_full = float(rate_after_full.std())
         snr_full = abs(mu_after_full - mu_before_full) / max(std_before_full, std_after_full, 1e-6)
         # Stat test
         _, p_u_full = mannwhitneyu(rate_before_full, rate_after_full, alternative='two-sided')
@@ -203,10 +207,10 @@ def extract_stat_test_results(start_ts, end_ts, duration_hr, rate, window_size_h
         p_u_full = np.nan
 
     return {
-        'rate_snr_30pt': snr,
-        'p_mannwhitneyu_30pt': p_u,
-        'rate_snr_full': snr_full,
-        'p_mannwhitneyu_full': p_u_full
+        'rate_snr_30pt': float(snr),
+        'p_mannwhitneyu_30pt': float(p_u),
+        'rate_snr_full': float(snr_full),
+        'p_mannwhitneyu_full': float(p_u_full)
     }
 
 
