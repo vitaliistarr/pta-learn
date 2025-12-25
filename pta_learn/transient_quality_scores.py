@@ -4,7 +4,7 @@ from datetime import timedelta
 from scipy.stats import mannwhitneyu, iqr
 
 
-def extract_pressure_features(start_ts, end_ts, pressure, window=24):
+def extract_pressure_features(start_ts, end_ts, pressure, window=12):
     """
         Extract pressure stability features from a transient interval for automated identification.
 
@@ -23,7 +23,7 @@ def extract_pressure_features(start_ts, end_ts, pressure, window=24):
             Time-indexed pressure measurements. 5 minutes resolution is recommended.
         window : int, optional
             Rolling window size (in data points) for local median calculation.
-            Default is 24, which is 2 hours window for 5 minutes resampled data.
+            Default is 12, which is 1 hour window for 5 minutes resampled data.
 
         Returns
         -------
@@ -59,13 +59,21 @@ def extract_pressure_features(start_ts, end_ts, pressure, window=24):
 
     # Local Median Deviation
     window_size = min(window, len(pressure_transient_arr))
-    rolling_pressure_median = pressure_transient.rolling(window=window_size, center=True, min_periods=1).median()
-    residuals = np.abs(pressure_transient - rolling_pressure_median)
-    residuals_mean = float(residuals.mean())
-    spread = iqr(pressure_transient_arr)
-    if spread == 0:
-        spread = float(np.std(pressure_transient_arr)) + 1e-9
-    local_median_deviation = float(1 - np.tanh(residuals_mean / spread * 2.0))
+    rolling_pressure_mean = pressure_transient.rolling(
+        window=window_size,
+        center=False,
+        min_periods=1
+    ).mean()
+
+    residuals = np.abs(pressure_transient - rolling_pressure_mean)
+    mad_residuals = float(np.median(np.abs(residuals - np.median(residuals))))
+    mad_residuals_scaled = max(mad_residuals * 1.4826, 1e-6)
+
+    z = residuals / mad_residuals_scaled
+    R = np.mean(z)
+
+    sig_score = 1.0 / (1.0 + np.exp(0.2 * (R - 50)))
+    local_deviation = float(sig_score)
 
     # Trend Efficiency
     net_change = float(np.abs(pressure_transient_arr[-1] - pressure_transient_arr[0]))
@@ -74,7 +82,7 @@ def extract_pressure_features(start_ts, end_ts, pressure, window=24):
 
     return {
         'monotonicity_ratio': monotonicity_ratio,
-        'local_median_deviation': local_median_deviation,
+        'local_deviation': local_deviation,
         'trend_efficiency': trend_efficiency,
     }
 
