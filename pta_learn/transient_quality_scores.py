@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from datetime import timedelta
-from scipy.stats import mannwhitneyu, iqr
+from scipy.stats import wilcoxon
 
 
 def extract_pressure_features(start_ts, end_ts, pressure, window=12):
@@ -137,108 +137,102 @@ def extract_rate_features(start_ts, end_ts, duration_hr, rate):
     }
 
 
-def extract_stat_test_results(start_ts, end_ts, duration_hr, rate, window_size_hr=30):
+def extract_stat_test_results(start_ts, end_ts, duration_hr, rate):
     """
-        Perform statistical hypothesis testing to quantify rate change significance at breakpoints.
+    Perform statistical hypothesis testing to quantify rate change significance at breakpoints.
 
-        This function applies the Mann-Whitney U test and computes signal-to-noise ratio (SNR)
-        to assess the statistical significance of rate changes at transient boundaries. These
-        metrics support automated identification of true breakpoints in pressure data.
+    Uses the paired Wilcoxon signed-rank test and signal-to-noise ratio (SNR) to assess
+    the statistical significance of rate changes at transient boundaries. Features are
+    computed for three window sizes: full, half, and quarter transient duration.
 
-        Parameters
-        ----------
-        start_ts : pd.Timestamp or datetime-like
-            Start timestamp of the transient interval (potential breakpoint).
-        end_ts : pd.Timestamp or datetime-like
-            End timestamp of the transient interval.
-        duration_hr : float
-            Duration of the transient in hours.
-        rate : pd.Series
-            Time-indexed flow rate measurements.
-        window_size_hr : float, optional
-            Size of time windows (hours) before and after start_ts for point-wise comparison.
-            Default is 30 hours.
+    Parameters
+    ----------
+    start_ts : pd.Timestamp or datetime-like
+        Start timestamp of the transient interval (candidate breakpoint).
+    end_ts : pd.Timestamp or datetime-like
+        End timestamp of the transient interval.
+    duration_hr : float
+        Duration of the transient in hours.
+    rate : pd.Series
+        Time-indexed flow rate measurements.
 
-        Returns
-        -------
-        dict
-            Dictionary containing four statistical metrics:
-            - 'rate_snr_30pt' : float
-                Signal-to-noise ratio computed using window_size_hr windows around start_ts.
-            - 'p_mannwhitneyu' : float
-                P-value from two-sided Mann-Whitney U test for window-based comparison.
-            - 'rate_snr_full' : float
-                Signal-to-noise ratio computed using full transient durations.
-            - 'p_mannwhitneyu_full' : float
-                P-value from two-sided Mann-Whitney U test for full transient comparison.
+    Returns
+    -------
+    dict
+        Dictionary containing six features:
+        - 'rate_change_snr_full'        : float - SNR using full transient duration windows.
+        - 'binary_rate_change_full'     : int   - Rate change (1/0), 1 if "no rate change" null rejected, full duration.
+        - 'rate_change_snr_half'        : float - SNR using half transient duration windows.
+        - 'binary_rate_change_half'     : int   - Rate change (1/0), 1 if "no rate change" null rejected, half duration.
+        - 'rate_change_snr_quarter'     : float - SNR using quarter transient duration windows.
+        - 'binary_rate_change_quarter'  : int   - Rate change (1/0), 1 if "no rate change" null rejected, quarter duration.
 
-            Returns np.nan for metrics when insufficient data points are available.
+        Returns np.nan for SNR and 0 for binary features when insufficient data is available.
     """
-    window_start_ts = start_ts - timedelta(hours=window_size_hr)
-    window_end_ts = start_ts + timedelta(hours=window_size_hr)
-    rate_before = rate[
-        (rate.index >= window_start_ts) & (rate.index < start_ts)]
-    rate_after = rate[(rate.index >= start_ts) & (rate.index < window_end_ts)]
-    if len(rate_before) > 0 and len(rate_after) > 0:
-        # SNR
-        mu_before, mu_after = float(rate_before.mean()), float(rate_after.mean())
-        std_before, std_after = float(rate_before.std()), float(rate_after.std())
-        snr = abs(mu_after - mu_before) / max(std_before, std_after, 1e-6)
-        # Stat test
-        _, p_u = mannwhitneyu(rate_before, rate_after, alternative='two-sided')
-    else:
-        snr = np.nan
-        p_u = np.nan
+    results = {}
 
-    # Previous transient start/end
-    prev_start_ts = start_ts - timedelta(hours=duration_hr)
-    prev_end_ts = start_ts
+    for scale, suffix in [(1.0, 'full'), (0.5, 'half'), (0.25, 'quarter')]:
+        window_hr = duration_hr * scale
 
-    # Full transient duration rate
-    rate_before_full = rate[(rate.index >= prev_start_ts) &
-                            (rate.index < prev_end_ts)]
-    rate_after_full = rate[(rate.index >= start_ts) &
-                           (rate.index < end_ts)]
+        rate_before = rate[
+            (rate.index >= start_ts - timedelta(hours=window_hr)) &
+            (rate.index < start_ts)
+        ]
+        rate_after = rate[
+            (rate.index >= start_ts) &
+            (rate.index < start_ts + timedelta(hours=window_hr))
+        ]
 
-    # Get stats if data is available
-    if len(rate_before_full) > 2 and len(rate_after_full) > 2:
-        # SNR
-        mu_before_full = float(rate_before_full.mean())
-        mu_after_full = float(rate_after_full.mean())
-        std_before_full = float(rate_before_full.std())
-        std_after_full = float(rate_after_full.std())
-        snr_full = abs(mu_after_full - mu_before_full) / max(std_before_full, std_after_full, 1e-6)
-        # Stat test
-        _, p_u_full = mannwhitneyu(rate_before_full, rate_after_full, alternative='two-sided')
-    else:
-        snr_full = np.nan
-        p_u_full = np.nan
+        if len(rate_before) > 2 and len(rate_after) > 2:
+            # SNR
+            mu_before = float(rate_before.mean())
+            mu_after  = float(rate_after.mean())
+            std_before = float(rate_before.std())
+            std_after  = float(rate_after.std())
+            snr = abs(mu_after - mu_before) / max(std_before, std_after, 1e-6)
 
-    return {
-        'rate_snr_30pt': float(snr),
-        'p_mannwhitneyu_30pt': float(p_u),
-        'rate_snr_full': float(snr_full),
-        'p_mannwhitneyu_full': float(p_u_full)
-    }
+            # Paired Wilcoxon signed-rank test — truncate to equal length,
+            # keeping samples immediately adjacent to the breakpoint
+            n  = min(len(rate_before), len(rate_after))
+            rb = rate_before.values[-n:]   # last n points before breakpoint
+            ra = rate_after.values[:n]     # first n points after breakpoint
+            try:
+                _, p_w = wilcoxon(rb, ra, alternative='two-sided')
+            except ValueError:
+                # degenerate case: all paired differences are zero
+                p_w = np.nan
+        else:
+            snr = np.nan
+            p_w = np.nan
+
+        results[f'rate_change_snr_{suffix}'] = snr
+        results[f'binary_rate_change_{suffix}'] = transform_p_value(p_w)
+
+    return results
 
 
 def transform_p_value(p):
     """
-        Transform p-value to a score in [0, 1] range where higher values indicate greater significance.
+    Transform a Wilcoxon p-value to the binary rate-change feature Hb.
 
-        Parameters
-        ----------
-        p : float
-            P-value from statistical hypothesis test.
+    The null hypothesis that the median of the paired rate differences equals zero
+    is rejected at the 0.05 significance level.
 
-        Returns
-        -------
-        float
-            Transformed score: (1 - p) if p is valid, 0 if p is NaN (penalizing missing values).
+    Parameters
+    ----------
+    p : float
+        P-value from the Wilcoxon signed-rank test.
+
+    Returns
+    -------
+    int
+        1 if the null hypothesis is rejected (p < 0.05), indicating a statistically
+        significant rate change; 0 otherwise, including when p is NaN
+        (penalising missing data).
     """
     if np.isnan(p):
-        return 0  # penalize missing
-    return 1 - p
+        return 0  # penalise missing data
+    return 1 if p < 0.05 else 0
 
 
 def transform_snr(snr, k=2):
@@ -273,8 +267,8 @@ def convert_rate_change_metrics_to_score(stat_test_results, weights=None):
         Parameters
         ----------
         stat_test_results : dict
-            Dictionary containing statistical metrics with keys including 'p_' for p-values
-            and 'snr' for signal-to-noise ratios.
+            Dictionary containing statistical rate validation features with keys for binary_rate_change
+            and rate_change_snr features.
         weights : array-like, optional
             Weights for averaging transformed scores. If None, equal weights are applied.
 
@@ -286,9 +280,9 @@ def convert_rate_change_metrics_to_score(stat_test_results, weights=None):
     """
     scores = []
     for key, value in stat_test_results.items():
-        if 'p_' in key:
-            scores.append(transform_p_value(value))
-        elif 'snr' in key:
+        if 'binary_rate_change' in key:
+            scores.append(value)
+        elif 'rate_change_snr' in key:
             scores.append(transform_snr(value))
     if weights is None:
         weights = np.ones(len(scores))
