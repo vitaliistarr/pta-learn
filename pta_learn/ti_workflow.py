@@ -441,13 +441,6 @@ def calculate_weighted_averaged_rate(rate_data, breakpoints, shutin_threshold=No
     # Convert the list to a DataFrame
     weighted_averaged_rates_df = pd.DataFrame(weighted_averaged_rates)
     
-    weighted_averaged_rates_df['Start Time'] = \
-        weighted_averaged_rates_df['Start Time'] - \
-            weighted_averaged_rates_df['Start Time'].iloc[0]
-    weighted_averaged_rates_df['End Time'] = \
-        weighted_averaged_rates_df['End Time'] - \
-            weighted_averaged_rates_df['Start Time'].iloc[0]
-    
     return weighted_averaged_rates_df
 
 
