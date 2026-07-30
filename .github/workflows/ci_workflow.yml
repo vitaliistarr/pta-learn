@@ -1,0 +1,34 @@
+name: Test & Stage Mirror
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  test:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ".[dev]"
+      - run: pytest
+
+  stage-mirror:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - env:
+          PUBLIC_REPO_PAT: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add public https://x-access-token:${PUBLIC_REPO_PAT}@github.com/vitaliistarr/pta-learn-test-repo.git
+          git push public main:staging --force

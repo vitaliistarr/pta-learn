@@ -441,13 +441,6 @@ def calculate_weighted_averaged_rate(rate_data, breakpoints, shutin_threshold=No
     # Convert the list to a DataFrame
     weighted_averaged_rates_df = pd.DataFrame(weighted_averaged_rates)
     
-    weighted_averaged_rates_df['Start Time'] = \
-        weighted_averaged_rates_df['Start Time'] - \
-            weighted_averaged_rates_df['Start Time'].iloc[0]
-    weighted_averaged_rates_df['End Time'] = \
-        weighted_averaged_rates_df['End Time'] - \
-            weighted_averaged_rates_df['Start Time'].iloc[0]
-    
     return weighted_averaged_rates_df
 
 
@@ -513,7 +506,9 @@ def ti_workflow(df_bhp, df_rate, p: float, interval_shutin: float, interval_inje
          shutin_threshold = None,
          order: int = None,  # Add these optional parameters
          start_filter_hours: int = None,
-         end_filter_hours: int = None):
+         end_filter_hours: int = None,
+         validate_shutin_by_rate: bool = True,
+         validate_flowing_by_rate: bool = True,):
     """
     ti_workflow is the function to detect the transients longer than certain intervals by 
     using TPMR for shutin transient
@@ -583,8 +578,12 @@ def ti_workflow(df_bhp, df_rate, p: float, interval_shutin: float, interval_inje
         w_rate = calculate_weighted_averaged_rate(rate_data=df_rate, breakpoints=all_breakpoints_filtered, shutin_threshold=shutin_threshold)
         
         # assign the shutin that calculated rate is not 0 as reduced_rate
-        shutin_filtered, flowing_filtered = validate_shutin_rate(shutin, w_rate, flowing_filtered)
-        shutin_filtered, flowing_filtered = validate_flowing_rate(shutin_filtered, w_rate, flowing_filtered)
+        if validate_shutin_by_rate:
+            shutin_filtered, flowing_filtered = validate_shutin_rate(shutin, w_rate, flowing_filtered)
+        else:
+            shutin_filtered = shutin.copy()
+        if validate_flowing_by_rate:
+            shutin_filtered, flowing_filtered = validate_flowing_rate(shutin_filtered, w_rate, flowing_filtered)
 
 
     return shutin_filtered, flowing_filtered, shutin_bp_interval, TI_ft_filtered, all_breakpoints_filtered,w_rate, params
