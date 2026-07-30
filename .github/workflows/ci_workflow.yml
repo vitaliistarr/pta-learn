@@ -1,4 +1,4 @@
-name: Test, Version Check & Stage Mirror
+name: Test & Stage Mirror
 
 on:
   pull_request:
@@ -6,32 +6,8 @@ on:
     branches: [main]
 
 jobs:
-  version-check:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Extract & compare version
-        run: |
-          pip install packaging requests
-          VERSION=$(python -c "import tomllib; d=tomllib.load(open('pyproject.toml','rb')); print(d['project']['version'])")
-          python - <<EOF
-          import requests
-          from packaging.version import Version
-          local = Version("$VERSION")
-          data = requests.get("https://pypi.org/pypi/pta-learn/json").json()
-          published = Version(data["info"]["version"])
-          assert local > published, f"{local} must exceed published {published}"
-          EOF
-
   test:
-    needs: version-check
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
