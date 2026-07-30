@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && github.repository == 'vitaliistarr/pta-learn-private'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
