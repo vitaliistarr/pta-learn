@@ -25,6 +25,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          persist-credentials: false
       - env:
           PUBLIC_REPO_PAT: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
         run: |
