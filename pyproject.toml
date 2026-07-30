@@ -44,6 +44,7 @@ dev = [
     "pytest-cov>=2.0",
     "black>=22.0",
     "isort>=5.0",
+    "requests>=2.31.0",
 ]
 
 [tool.pytest.ini_options]
