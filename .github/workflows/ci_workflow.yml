@@ -1,4 +1,4 @@
-name: Test, Version Check, Mirror & Publish
+name: Test, Version Check & Stage Mirror
 
 on:
   pull_request:
@@ -9,95 +9,50 @@ jobs:
   version-check:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    outputs:
-      new_version: ${{ steps.getver.outputs.version }}
     steps:
-      - name: Checkout private repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Extract version from pyproject.toml
-        id: getver
-        run: |
-          VERSION=$(python -c "import tomllib; d=tomllib.load(open('pyproject.toml','rb')); print(d['project']['version'])")
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Local pyproject.toml version: $VERSION"
-
-      - name: Compare against latest published PyPI version
+      - name: Extract & compare version
         run: |
           pip install packaging requests
-          python - <<'EOF'
+          VERSION=$(python -c "import tomllib; d=tomllib.load(open('pyproject.toml','rb')); print(d['project']['version'])")
+          python - <<EOF
           import requests
           from packaging.version import Version
-          local = Version("${{ steps.getver.outputs.version }}")
+          local = Version("$VERSION")
           data = requests.get("https://pypi.org/pypi/pta-learn/json").json()
           published = Version(data["info"]["version"])
-          print(f"Local: {local} | Published: {published}")
-          assert local > published, f"pyproject.toml version {local} must be greater than published PyPI version {published}"
+          assert local > published, f"{local} must exceed published {published}"
           EOF
 
   test:
     needs: version-check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout private repo
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - run: pip install ".[dev]"
+      - run: pytest
 
-      - name: Install package with dev dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ".[dev]"
-
-      - name: Run pytest
-        run: pytest
-
-  mirror-and-publish:
+  stage-mirror:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout private repo (full history)
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
-
-      - name: Mirror main to public repo
-        env:
+      - env:
           PUBLIC_REPO_PAT: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote add public https://x-access-token:${PUBLIC_REPO_PAT}@github.com/vitaliistarr/pta-learn-test-repo.git
-          git push public main:main
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Build distribution (hatchling)
-        run: |
-          python -m pip install --upgrade pip build
-          python -m build
-
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TESTPYPI_API_TOKEN }}
-        run: |
-          pip install twine
-          twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+          git push public main:staging --force
