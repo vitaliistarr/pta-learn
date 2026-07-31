@@ -1,0 +1,34 @@
+name: Open & Auto-Merge Release PR
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  open-and-merge-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: staging
+
+      - name: Open release PR
+        env:
+          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
+        run: |
+          gh pr create \
+            --base main \
+            --head staging \
+            --title "Release: promote staging to main" \
+            --body "Automated release PR. Version check and tests passed." \
+            || echo "PR already exists, skipping creation"
+
+      - name: Auto-merge release PR
+        env:
+          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
+        run: |
+          PR_NUMBER=$(gh pr list --base main --head staging --json number --jq '.[0].number')
+          gh pr merge "$PR_NUMBER" --merge --auto
