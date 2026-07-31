@@ -1,16 +1,16 @@
-name: Verify Staging & Auto-Merge Release PR
+name: Version-check and Test
 
 on:
-  push:
-    branches: [staging]
+  pull_request:
+    branches: [main]
 
 jobs:
   version-check:
+    if: github.repository == 'vitaliistarr/pta-learn-test-repo'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: staging
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -39,32 +39,3 @@ jobs:
           python-version: "3.12"
       - run: pip install ".[dev]"
       - run: pytest
-
-  open-and-merge-pr:
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: staging
-
-      - name: Open release PR
-        env:
-          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
-        run: |
-          gh pr create \
-            --base main \
-            --head staging \
-            --title "Release: promote staging to main" \
-            --body "Automated release PR. Version check and tests passed." \
-            || echo "PR already exists, skipping creation"
-
-      - name: Auto-merge release PR
-        env:
-          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
-        run: |
-          PR_NUMBER=$(gh pr list --base main --head staging --json number --jq '.[0].number')
-          gh pr merge "$PR_NUMBER" --merge --auto
