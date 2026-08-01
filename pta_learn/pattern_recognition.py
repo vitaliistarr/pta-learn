@@ -226,10 +226,11 @@ class PatternRecognition():
         self.combine_distances()
         self.confidence = dict()
         self.pattern_recognized = False
+        self.exit_cycle = False
         num_of_transients_to_drop = 0
         t = time_lib.time()
         # Find max pattern duration for each regime. Stores data in NxR matrix: N-iteration, R-regime
-        while not self.pattern_recognized:
+        while not self.exit_cycle:
 
             print(f'Drop number = {num_of_transients_to_drop}')
             dropped_transients, variation_of_selected_transients = select_transients_to_process(self.output, num_of_transients_to_drop)
@@ -263,6 +264,7 @@ class PatternRecognition():
                             max_durations[iteration,i] = max(durations)
                             start_end[iteration,i] = np.array([start,end])
                             self.pattern_recognized = True
+                            self.exit_cycle = True
 
             if self.pattern_recognized:
                 print(f'Pattern recognized, max_durations array {max_durations}')
@@ -280,7 +282,7 @@ class PatternRecognition():
                     num_of_transients_to_drop += 1
                 else:
                     print(f'Stable pattern was not detected: min_pattern {minimum_interval_length} logtime; max_transients_to_drop {max_number_of_transients_to_drop}.')
-                    self.pattern_recognized = True
+                    self.exit_cycle = True
 
         print(f'time to recognize interval {time_lib.time() - t}')
 

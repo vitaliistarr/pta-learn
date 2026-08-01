@@ -1,0 +1,35 @@
+name: Test & Stage Mirror
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  test-private:
+    if: github.event.pull_request.merged == true && github.repository == 'vitaliistarr/pta-learn-private'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ".[dev]"
+      - run: pytest
+
+  stage-mirror:
+    needs: test-private
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - env:
+          PUBLIC_REPO_PAT: ${{ secrets.PUBLIC_REPO_PAT }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add public https://x-access-token:${PUBLIC_REPO_PAT}@github.com/vitaliistarr/pta-learn.git
+          git push public main:staging --force
