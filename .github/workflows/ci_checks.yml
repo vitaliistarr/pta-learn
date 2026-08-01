@@ -6,7 +6,6 @@ on:
 
 jobs:
   version-check:
-    if: github.repository == 'vitaliistarr/pta-learn-test-repo'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
