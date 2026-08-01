@@ -198,3 +198,86 @@ def cal_loglog_inj(df_bhp, df_rate, selected_list,all_breakpoints,rebuilt_rate,i
     df_derivative_detect_i1 = der(df_super_detect_i1,L)
 
     return df_derivative_detect_i1, weighted_rate_i1,ia1_breakpoints
+
+def ue_centered_moving(
+    dfs,
+    resample_time=500,
+    log_half_window=0.2,
+    k_std=2.0,
+    time_col="time",
+    deriv_col="deriv",
+):
+    """
+    Compute moving uncertainty envelope (UE) from one or more transients
+    using a centered sliding window defined in log10(time).
+
+    Parameters
+    ----------
+    dfs : list[pd.DataFrame]
+        Each DataFrame must contain [time_col, deriv_col].
+    resample_time : int
+        Number of points in the common log-time grid.
+    log_half_window : float
+        Half-width (in log10 decades) of the centered window around each resample_time.
+    k_std : float
+        Number of std-dev (in log-space) for the UE limits.
+    time_col, deriv_col : str
+        Column names for time and derivative.
+
+    Returns
+    -------
+    time_resampled, UE_moving_mean, UE_lower_limit, UE_upper_limit
+    """
+    # 1) resample input data to a log space
+    t_min_all = max(min(df[time_col].min() for df in dfs), 1e-12)
+    t_max_all = max(df[time_col].max() for df in dfs)
+
+    time_resampled = np.logspace(np.log10(t_min_all), np.log10(t_max_all), num=resample_time)
+
+    # Interpolate each transient onto time_resampled
+    P = np.vstack([
+        np.interp(
+            time_resampled,
+            df[time_col].to_numpy(),
+            df[deriv_col].to_numpy(),
+        )
+        for df in dfs
+    ])
+
+    # 2) Convert log_window (decades) to number of resampled data points
+    # log_step is the difference in decades between consecutive time_resampled data points
+    log_step = np.log10(time_resampled[1] / time_resampled[0])
+    half_window_pts = max(1, round(log_half_window / log_step))
+
+    # 3) Compute centered-simple moving mean/std in log-space using pooled values from all transients
+    mean_log = np.full(resample_time, np.nan)
+    std_log  = np.full(resample_time, np.nan)
+
+    for j in range(resample_time):
+        left  = max(0, j - half_window_pts)
+        right = min(resample_time, j + half_window_pts + 1)
+
+        window_vals = P[:, left:right].ravel()
+        window_vals = window_vals[window_vals > 0]
+
+        if window_vals.size == 0:
+            if j > 0:
+                mean_log[j] = mean_log[j-1]
+                std_log[j]  = std_log[j-1]
+            else:
+                mean_log[j] = np.nan
+                std_log[j]  = 0.0
+        else:
+            window_log   = np.log10(window_vals)
+            mean_log[j]  = window_log.mean()
+            std_log[j]   = window_log.std(ddof=0)
+
+    # UE limits in log-space then transform to linear
+    lower_log = mean_log - k_std * std_log
+    upper_log = mean_log + k_std * std_log
+
+    UE_moving_mean = 10**mean_log
+    UE_lower_limit = 10**lower_log
+    UE_upper_limit = 10**upper_log
+
+    return time_resampled, UE_moving_mean, UE_lower_limit, UE_upper_limit
