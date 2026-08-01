@@ -1,21 +1,21 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pta-learn"
-version = "1.0.3"
+version = "1.0.6"
 description = "A Python library for automated Pressure Transient Analysis (PTA) workflows. It provides tools for PTA flow regime feature extraction, time-lapse pattern recognition, pressure transient identification, and Bourdet derivative calculation."
 readme = "README.md"
 authors = [
     { name = "V. Starikov", email = "starikovv98@gmail.com" },
     { name = "B. Cui", email = "boyu.cui@qq.com" },
 ]
-license = { file = "LICENSE" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
 ]
@@ -44,6 +44,7 @@ dev = [
     "pytest-cov>=2.0",
     "black>=22.0",
     "isort>=5.0",
+    "requests>=2.31.0",
 ]
 
 [tool.pytest.ini_options]
