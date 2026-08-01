@@ -16,13 +16,19 @@ pip install pta-learn
 
 ## Usage
 
-### Transient Identification
+### Pressure Transient Identification
 <a href="https://colab.research.google.com/drive/1SsXoKafnEJWafGUk8FHa_d7oF6ODljHI?usp=sharing"> Integrated Transient Identification Workflow example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
 <a href="https://colab.research.google.com/drive/1z9B7RzGkWfQEpRWUygTIJvKtjnSeexE4?usp=sharing"> Shutin Transient Identification by TPMR method example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
 <a href="https://colab.research.google.com/drive/1WFA9hKydEoxk1Z60_NFCQQJwhT9QwMEw?usp=sharing"> Flowing Transient Identification by LMIR method <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
 
+### Pressure Transient Quality Screening
+<a href="https://colab.research.google.com/drive/1VQ4WcATTnOtiuFuHI0SsGkaVx852eRlt?usp=sharing"> Pressure Transient Quality Scores <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
+<a href="https://colab.research.google.com/drive/1VWowB60ohT1Qp5qy01mmVvTTHfH6ViZN?usp=sharing"> Rate Absolute Relative Error (RARE) calculation example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
+
+
 ### Bourdet Derivative and Loglog Plot Calculation
-<a href="https://colab.research.google.com/drive/1lVzSIklC-51Nzqehp4lOFctKCjhEbX3Z?usp=sharing"> Loglog family ploting Workflow example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a>
+<a href="https://colab.research.google.com/drive/1lVzSIklC-51Nzqehp4lOFctKCjhEbX3Z?usp=sharing"> Loglog family ploting Workflow example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
+<a href="https://colab.research.google.com/drive/14DUNrKVd90Jzc0dfJHHC3Jg37MIQcuox?usp=sharing"> Derivative Uncertainty Envelope (DUE) calculation example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
 
 ### Pattern Recognition in Time-lapse Pressure Transient Responses
 <a href="https://colab.research.google.com/drive/1ioJiNM5xpNyP1NoVpBrQp1qr1u94Knlz?usp=sharing"> PTA flow regime feature extraction example <img src="https://colab.research.google.com/assets/colab-badge.svg" height=16px></a> <br>
@@ -33,6 +39,22 @@ pip install pta-learn
 
 If you use this library in your research, please cite:
 
+### Pressure Transient Identification
+```
+@article{shchipanov2025new,
+  title={New transient identification methods for automated pre-processing of pressure measurements with permanent well gauges},
+  author={Cui, B. and Shchipanov, A. and Demyanov, V. and Zhang, N. and Rong, C.},
+  journal={Geoenergy Science and Engineering},
+  volume={257},
+  pages={214203},
+  year={2025},
+  publisher={Elsevier},
+  doi={10.1016/j.geoen.2025.214203},
+  url={https://www.sciencedirect.com/science/article/pii/S2949891025005615}
+}
+```
+
+### Pattern Recognition in Time-Lapse PTA
 ```
 @article{starikov2024feature,
   title={Feature extraction and pattern recognition in time-lapse pressure transient responses},
@@ -56,32 +78,24 @@ If you use this library in your research, please cite:
   publisher={European Association of Geoscientists & Engineers},
   doi={10.3997/2214-4609.202335019}
 }
-
-@conference{Boyu2023tpmr,
-  title={TPMR - A Novel Method for Automated Identification of Well Pressure Transients},
-  author={Cui,B. and Zhang,N. and Shchipanov,A. and Rong,C. and Demyanov,V.},
-  booktitle={84th EAGE Annual Conference & Exhibition},
-  year={2023},
-  month={Jun},
-  pages={1-5},
-  publisher={European Association of Geoscientists & Engineers},
-  doi={https://doi.org/10.3997/2214-4609.202310910}
-}
-
-@conference{Boyu2024lmir,
-  title={LMIR - A New Method for Automated Identification of Multi-Rate Pressure Transients},
-  author={Cui,B. and Shchipanov,A. and Zhang,N. and Demyanov,V. and Rong,C.},
-  booktitle={85th EAGE Annual Conference & Exhibition},
-  year={2024},
-  month={Jun},
-  pages={1-5},
-  publisher={European Association of Geoscientists & Engineers},
-  doi={https://doi.org/10.3997/2214-4609.202410313}
-}
-
-
-
 ```
+
+### Derivative Uncertainty Envelope (DUE)
+```
+@inproceedings{mugisha2026breakthrough,
+  title={A Breakthrough in Early Detection and Monitoring of Induced Fracture with Automated Interpretation of Step-Rate Tests},
+  author={Mugisha, J. and Shchipanov, A. Midtb{\o} {\O}verland, A. Starikov, V. and Muradov, K.},
+  booktitle={Paper presented at the SPE Europe Energy Conference and Exhibition},
+  address={Istanbul, Turkey},
+  year={2026},
+  month={June},
+  number={SPE-233202-MS},
+  organization={Society of Petroleum Engineers},
+  doi={10.2118/233202-MS},
+  url={https://doi.org/10.2118/233202-MS}
+}
+```
+
 ## Acknowledgements
 
 This research code was developed within the following projects:
