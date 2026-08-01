@@ -17,7 +17,7 @@ jobs:
 
       - name: Open release PR
         env:
-          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
+          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT }}
         run: |
           gh pr create \
             --base main \
@@ -28,7 +28,7 @@ jobs:
 
       - name: Auto-merge release PR
         env:
-          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
+          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT }}
         run: |
           PR_NUMBER=$(gh pr list --base main --head staging --json number --jq '.[0].number')
           gh pr merge "$PR_NUMBER" --merge --auto

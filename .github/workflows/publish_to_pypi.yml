@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true && github.repository == 'vitaliistarr/pta-learn-test-repo'
+    if: github.event.pull_request.merged == true && github.repository == 'vitaliistarr/pta-learn'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
       - run: python -m build
       - env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TESTPYPI_API_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
           pip install twine
-          twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+          twine upload dist/*
