@@ -338,7 +338,13 @@ If you use this library in your research, please cite:
 ```
 ## Acknowledgements
 
-This research code was developed within the AutoWell research and development project funded by the Research Council of Norway and the industry partners including ConocoPhillips Skandinavia AS, Sumitomo Corporation Europe Norway Branch, Harbour Energy Norge AS and Aker BP ASA (grant no. 326580, PETROMAKS2 programme).
+This research code was developed within the following projects:
+
+- AutoWell research and development project funded by the Research Council of Norway and the industry partners including
+ConocoPhillips Skandinavia AS, Sumitomo Corporation Europe Norway Branch, Harbour Energy Norge AS and Aker BP ASA
+(grant no. 326580, PETROMAKS2 programme).
+- AutoWell Phase 2, a joint industry research and development project funded by ConocoPhillips Skandinavia AS,
+Aker BP ASA, Harbour Energy Norge AS and TotalEnergies EP Norge AS.
 
 ## Contributing
 
