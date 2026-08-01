@@ -27,9 +27,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - env:
-          PUBLIC_REPO_PAT: ${{ secrets.PUBLIC_REPO_PAT_TEST }}
+          PUBLIC_REPO_PAT: ${{ secrets.PUBLIC_REPO_PAT }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote add public https://x-access-token:${PUBLIC_REPO_PAT}@github.com/vitaliistarr/pta-learn-test-repo.git
+          git remote add public https://x-access-token:${PUBLIC_REPO_PAT}@github.com/vitaliistarr/pta-learn.git
           git push public main:staging --force
