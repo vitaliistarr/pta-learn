@@ -3,3 +3,4 @@ from .pattern_recognition import PatternRecognition
 from .ti_workflow import ti_workflow
 from .tpmr import TPMR
 from .lmir import LMIR
+from .transient_quality_scores import compute_scores, compute_features
